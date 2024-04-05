@@ -1,5 +1,4 @@
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     private static final String[] WORDS = {"apple", "banana", "orange", "grape", "pineapple", "watermelon"}; //TODO заменить на словарь существительных в именительным падеже
@@ -41,6 +40,7 @@ public class Main {
 
     public static void startGame() {
         String wordToGuess = getRandomWord();
+        HashSet<Character> noGuessedLetters = new HashSet<>();
         char[] guessedLetters = new char[wordToGuess.length()];
         int errors = 0;
 
@@ -51,13 +51,12 @@ public class Main {
             System.out.println("Ваша виселица:");
             drawgallow(errors);
             System.out.println("Угаданные буквы: " + String.valueOf(guessedLetters));
-            //TODO счётчик ошибок?? с указанием букв???
+            System.out.println("Ошибки: " + errors + " " + noGuessedLetters);
 
             // ввод буквы
             System.out.print("Введите букву: ");
 
             //TODO проверка на валидный символ (маленькие русские), не валидный символ не должен увеличивать счётчик
-            //TODO проверка на повторно введённый символ, которого нет в слове - такой символ тоже не должен увеличивать счётчик
 
             char guess = scanner.nextLine().charAt(0);
 
@@ -72,7 +71,9 @@ public class Main {
 
             // проверка на ошибку
             if (!found) {
-                errors++;
+                if (!noGuessedLetters.contains(guess))
+                    errors++;
+                noGuessedLetters.add(guess);
                 System.out.println("Неверная буква!");
             }
 
