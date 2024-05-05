@@ -1,7 +1,9 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Main {
-    private static final String[] WORDS = {"apple", "banana", "orange", "grape", "pineapple", "watermelon"}; //TODO заменить на словарь существительных в именительным падеже
     private static final int MAX_ERRORS = 6;
 
     static String[] gallow = {
@@ -14,7 +16,7 @@ public class Main {
             "  ____\n |    |\n |    O\n |   /|\\\n |   / \\\n_|_"
     };
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -38,7 +40,7 @@ public class Main {
         }
     }
 
-    public static void startGame() {
+    public static void startGame() throws IOException {
         String wordToGuess = getRandomWord();
         HashSet<Character> noGuessedLetters = new HashSet<>();
         char[] guessedLetters = new char[wordToGuess.length()];
@@ -48,7 +50,7 @@ public class Main {
 
         while (true) {
             // текущее состояния виселицы и уже угаданные буквы в слове
-            System.out.println("Ваша виселица:");
+            System.out.println("\nВаша виселица:");
             drawgallow(errors);
             System.out.println("Угаданные буквы: " + String.valueOf(guessedLetters));
             System.out.println("Ошибки: " + errors + " " + noGuessedLetters);
@@ -56,39 +58,40 @@ public class Main {
             // ввод буквы
             System.out.print("Введите букву: ");
 
-            //TODO проверка на валидный символ (маленькие русские), не валидный символ не должен увеличивать счётчик
-
             char guess = scanner.nextLine().charAt(0);
 
-            // есть ли введенная буква в загаданном слове
-            boolean found = false;
-            for (int i = 0; i < wordToGuess.length(); i++) {
-                if (wordToGuess.charAt(i) == guess) {
-                    guessedLetters[i] = guess;
-                    found = true;
+            if ((int) guess >= 1072 && (int) guess <= 1105) {
+                // есть ли введенная буква в загаданном слове
+                boolean found = false;
+                for (int i = 0; i < wordToGuess.length(); i++) {
+                    if (wordToGuess.charAt(i) == guess) {
+                        guessedLetters[i] = guess;
+                        found = true;
+                    }
                 }
-            }
 
-            // проверка на ошибку
-            if (!found) {
-                if (!noGuessedLetters.contains(guess))
-                    errors++;
-                noGuessedLetters.add(guess);
-                System.out.println("Неверная буква!");
-            }
+                // проверка на ошибку
+                if (!found) {
+                    if (!noGuessedLetters.contains(guess))
+                        errors++;
+                    noGuessedLetters.add(guess);
+                    System.out.println("Неверная буква!");
+                }
 
-            // проверка на победу или поражение
-            if (errors >= MAX_ERRORS) {
-                System.out.println("Ваша виселица:");
-                drawgallow(errors);
-                System.out.println("Вы проиграли. Загаданное слово было: " + wordToGuess);
-                break;
-            }
+                // проверка на победу или поражение
+                if (errors >= MAX_ERRORS) {
+                    System.out.println("\nВаша виселица:");
+                    drawgallow(errors);
+                    System.out.println("Вы проиграли. Загаданное слово было: " + wordToGuess);
+                    break;
+                }
 
-            if (isWordGuessed(guessedLetters)) {
-                System.out.println("Поздравляем! Вы угадали слово: " + wordToGuess);
-                break;
-            }
+                if (isWordGuessed(guessedLetters)) {
+                    System.out.println("\nПоздравляем! Вы угадали слово: " + wordToGuess);
+                    break;
+                }
+            } else
+                System.out.println("\nНевалидный символ! Вводите только маленькие буквы кириллицы");
         }
     }
 
@@ -110,9 +113,9 @@ public class Main {
         return true;
     }
 
-    public static String getRandomWord() {
-        Random random = new Random();
-        return WORDS[random.nextInt(WORDS.length)];
+    public static String getRandomWord() throws IOException {
+        List<String> wordList = Files.readAllLines(Paths.get("src/resources/words.txt"));
+        return wordList.get(new Random().nextInt(wordList.size()));
     }
 
     public static void exitGame() {
